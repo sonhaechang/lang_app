@@ -22,24 +22,29 @@ const AnimatedBox = Animated.createAnimatedComponent(Box);
 export default function App() {
 	const [up, setUp] = useState(false);
 
-	const Y_POSITION = useRef(new Animated.Value(250)).current;
+	const POSITION = useRef(new Animated.ValueXY({x: 0, y: 250})).current;
 
 	const toggleUp = () => setUp((prev) => !prev);
 
 	const mvoeUp = () => {
-		Animated.timing(Y_POSITION, {
+		Animated.timing(POSITION, {
 			toValue: up ? 250 : -250,
 			duration: 1000,
-			useNativeDriver: true,
+			useNativeDriver: false,
 		}).start(toggleUp);
 	};
 
-	const opacityValue = Y_POSITION.interpolate({
-		inputRange: [-250, 0, 250],
-		outputRange: [1, 0.5, 1],
+	const bgColorValue = POSITION.y.interpolate({
+		inputRange: [-250, 250],
+		outputRange: ['rgb(255, 99, 71)', 'rgb(71, 166, 255)'],
 	});
 
-	const borderRadiusValue = Y_POSITION.interpolate({
+	const rotationValue = POSITION.y.interpolate({
+		inputRange: [-250, 250],
+		outputRange: ['-360deg', '360deg'],
+	});
+
+	const borderRadiusValue = POSITION.y.interpolate({
 		inputRange: [-250, 250],
 		outputRange: [100, 0],
 	});
@@ -49,9 +54,12 @@ export default function App() {
 			<Pressable onPress={mvoeUp} >
 				<AnimatedBox 
 					style={{
-						opacity: opacityValue,
+						backgroundColor: bgColorValue,
 						borderRadius: borderRadiusValue,
-						transform: [{ translateY: Y_POSITION }],
+						transform: [
+							{ rotateY: rotationValue },
+							{ translateY: POSITION.y }
+						],
 					}}
 				/>
 			</Pressable>
