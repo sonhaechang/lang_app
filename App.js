@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from 'react';
-import { Animated, Easing, TouchableOpacity } from 'react-native';
+import { Animated, Pressable } from 'react-native';
 
 import styled from 'styled-components/native';
 
@@ -22,29 +22,39 @@ const AnimatedBox = Animated.createAnimatedComponent(Box);
 export default function App() {
 	const [up, setUp] = useState(false);
 
-	const Y = useRef(new Animated.Value(0)).current;
+	const Y_POSITION = useRef(new Animated.Value(250)).current;
 
 	const toggleUp = () => setUp((prev) => !prev);
 
 	const mvoeUp = () => {
-		Animated.timing(Y, {
-			toValue: up ? 200 : -200,
-			easing: Easing.cubic,
+		Animated.timing(Y_POSITION, {
+			toValue: up ? 250 : -250,
+			duration: 1000,
 			useNativeDriver: true,
 		}).start(toggleUp);
 	};
 
-	Y.addListener(() => console.log(Y));
+	const opacityValue = Y_POSITION.interpolate({
+		inputRange: [-250, 0, 250],
+		outputRange: [1, 0.5, 1],
+	});
+
+	const borderRadiusValue = Y_POSITION.interpolate({
+		inputRange: [-250, 250],
+		outputRange: [100, 0],
+	});
 
 	return (
 		<Container>
-			<TouchableOpacity onPress={mvoeUp} >
+			<Pressable onPress={mvoeUp} >
 				<AnimatedBox 
 					style={{
-						transform: [{ translateY: Y }],
+						opacity: opacityValue,
+						borderRadius: borderRadiusValue,
+						transform: [{ translateY: Y_POSITION }],
 					}}
 				/>
-			</TouchableOpacity>
+			</Pressable>
 		</Container>
 	);
 }
