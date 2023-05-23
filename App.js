@@ -1,5 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Animated } from 'react-native';
 
 import styled from 'styled-components/native';
 
@@ -16,25 +17,19 @@ const Box = styled.TouchableOpacity`
 	height: 200px;
 `;
 
+const AnimatedBox = Animated.createAnimatedComponent(Box);
+
 export default function App() {
-	const [y, setY] = useState(0);
-	const [intervalId, setIntervalId] = useState(null);
+	const Y = new Animated.value(0);
 
-	const mvoeUp = () => {
-		const id = setInterval(() => setY(prev => prev+1), 1);
-		setIntervalId(id)
-	}
-
-	useEffect(() => {
-		if (y === 200) { clearImmediate(intervalId); }
-	}, [y, intervalId]);
+	const mvoeUp = () => {};
 
 	return (
 		<Container>
-			<Box 
+			<AnimatedBox 
 				onPress={mvoeUp} 
 				style={{
-					transform: [{ translateY: y }],
+					transform: [{ translateY: Y }],
 				}}
 			/>
 		</Container>
