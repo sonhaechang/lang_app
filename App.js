@@ -1,6 +1,6 @@
 
-import React, { useRef, useState } from 'react';
-import { Animated, Pressable } from 'react-native';
+import React, { useRef } from 'react';
+import { Animated, Dimensions, Pressable } from 'react-native';
 
 import styled from 'styled-components/native';
 
@@ -19,33 +19,62 @@ const Box = styled.View`
 
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
+const { 
+	width: SCREEN_WIDTH, 
+	height: SCREEN_HEIGHT,
+} = Dimensions.get('window');
+
 export default function App() {
-	const [up, setUp] = useState(false);
+	const POSITION = useRef(new Animated.ValueXY({
+		x: -SCREEN_WIDTH / 2 + 100,
+		y: -SCREEN_HEIGHT / 2 + 100,
+	})).current;
 
-	const POSITION = useRef(new Animated.ValueXY({x: 0, y: 250})).current;
+	const topLeft = Animated.timing(POSITION, {
+		toValue: {
+			x: -SCREEN_WIDTH / 2 + 100,
+			y: -SCREEN_HEIGHT / 2 + 100,
+		},
+		useNativeDriver: false,
+	});
 
-	const toggleUp = () => setUp((prev) => !prev);
+	const bottomLeft = Animated.timing(POSITION, {
+		toValue: {
+			x: -SCREEN_WIDTH / 2 + 100,
+			y: SCREEN_HEIGHT / 2 - 100,
+		},
+		useNativeDriver: false,
+	});
+
+	const bottomRight = Animated.timing(POSITION, {
+		toValue: {
+			x: SCREEN_WIDTH / 2 - 100,
+			y: SCREEN_HEIGHT / 2 - 100,
+		},
+		useNativeDriver: false,
+	});
+
+	const topRight = Animated.timing(POSITION, {
+		toValue: {
+			x: SCREEN_WIDTH / 2 - 100,
+			y: -SCREEN_HEIGHT / 2 + 100,
+		},
+		useNativeDriver: false,
+	  });
 
 	const mvoeUp = () => {
-		Animated.timing(POSITION, {
-			toValue: up ? 250 : -250,
-			duration: 1000,
-			useNativeDriver: false,
-		}).start(toggleUp);
+		Animated.loop(
+			Animated.sequence([bottomLeft, bottomRight, topRight, topLeft])
+		).start();
 	};
 
 	const bgColorValue = POSITION.y.interpolate({
-		inputRange: [-250, 250],
+		inputRange: [-300, 300],
 		outputRange: ['rgb(255, 99, 71)', 'rgb(71, 166, 255)'],
 	});
 
-	const rotationValue = POSITION.y.interpolate({
-		inputRange: [-250, 250],
-		outputRange: ['-360deg', '360deg'],
-	});
-
 	const borderRadiusValue = POSITION.y.interpolate({
-		inputRange: [-250, 250],
+		inputRange: [-300, 300],
 		outputRange: [100, 0],
 	});
 
@@ -57,8 +86,7 @@ export default function App() {
 						backgroundColor: bgColorValue,
 						borderRadius: borderRadiusValue,
 						transform: [
-							{ rotateY: rotationValue },
-							{ translateY: POSITION.y }
+							...POSITION.getTranslateTransform(),
 						],
 					}}
 				/>
