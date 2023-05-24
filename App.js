@@ -77,12 +77,16 @@ export default function App() {
 	const goLeft = Animated.spring(position, {
 		toValue: -500, 
 		tension: 5,
+		restSpeedThreshold: 100,
+		restDisplacementThreshold: 100,
 		useNativeDriver: true
 	});
 
 	const goRight = Animated.spring(position, {
 		toValue: 500, 
 		tension: 5,
+		restSpeedThreshold: 100,
+		restDisplacementThreshold: 100,
 		useNativeDriver: true
 	});
 
