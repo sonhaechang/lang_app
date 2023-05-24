@@ -54,6 +54,8 @@ const Word = styled.Text`
 `;
 
 export default function App() {
+	const [index, setIndex] = useState(0);
+
 	const scale = useRef(new Animated.Value(1)).current;
 	const position = useRef(new Animated.ValueXY({x:0, y: 0})).current;
 	const opacity = useRef(new Animated.Value(1)).current;
@@ -118,13 +120,22 @@ export default function App() {
 							easing: Easing.linear,
 							useNativeDriver: true,
 						})
-					]).start();
+					]).start(nextIcon);
 				} else {
 					Animated.parallel([onPressOut, goHome]).start();
 				}
 			},	
 		})
 	).current;
+
+	const nextIcon = () => {
+		Animated.parallel([
+			Animated.spring(scale, { toValue: 1, useNativeDriver: true, }),
+			Animated.spring(opacity, { toValue: 1, useNativeDriver: true, })
+		]).start();
+
+		setIndex((prev) => prev + 1);
+	};
 
 	return (
 		<Container>
@@ -150,7 +161,7 @@ export default function App() {
 						],
 					}}
 				>
-					<Ionicons name='beer' color={GREY} size={76} />
+					<Ionicons name={icons[index]} color={GREY} size={76} />
 				</IconCard>
 			</Center>
 
