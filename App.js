@@ -14,6 +14,12 @@ const Container = styled.View`
 	background-color: #00a8ff;
 `;
 
+const CardContainer = styled.View`
+	flex: 3;
+	justify-content: center;
+	align-items: center;
+`;
+
 const Card = styled(Animated.createAnimatedComponent(View))`
 	background-color: white;
 	width: 300px;
@@ -22,6 +28,16 @@ const Card = styled(Animated.createAnimatedComponent(View))`
 	align-items: center;
 	border-radius: 12px;
 	box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+	position: absolute;
+`;
+
+const BtnCotainer = styled.View`
+	flex-direction: row;
+	flex: 1;
+`;
+
+const Btn = styled.TouchableOpacity`
+	margin: 0px 10px;
 `;
 
 export default function App() {
@@ -31,6 +47,12 @@ export default function App() {
 	const rotation = position.interpolate({
 		inputRange: [-250, 250],
 		outputRange: ['-15deg', '15deg'],
+	});
+
+	const secondScale = position.interpolate({
+		inputRange: [-300, 0, 300],
+		outputRange: [1, 0.7, 1],
+		extrapolate: 'clamp',
 	});
 
 	const onPressIn = Animated.spring(scale, { 
@@ -48,6 +70,18 @@ export default function App() {
 		useNativeDriver: true, 
 	});
 
+	const goLeft = Animated.spring(position, {
+		toValue: -500, 
+		tension: 5,
+		useNativeDriver: true
+	});
+
+	const goRight = Animated.spring(position, {
+		toValue: 500, 
+		tension: 5,
+		useNativeDriver: true
+	});
+
 	const panResponder = useRef(
 		PanResponder.create({
 			onStartShouldSetPanResponder: () => true,
@@ -56,16 +90,10 @@ export default function App() {
 			},
 			onPanResponderGrant: () => onPressIn.start(),
 			onPanResponderRelease: (_, { dx }) => {
-				if (dx < -320) {
-					Animated.spring(position, {
-						toValue: -500, 
-						useNativeDriver: true
-					}).start();
-				} else if (dx > 320) {
-					Animated.spring(position, {
-						toValue: 500, 
-						useNativeDriver: true
-					}).start();
+				if (dx < -250) {
+					goLeft.start();
+				} else if (dx > 250) {
+					goRight.start();
 				} else {
 					Animated.parallel([
 						onPressOut, 
@@ -76,20 +104,48 @@ export default function App() {
 		})
 	).current;
 
+	const closePress = () => {
+		goLeft.start();
+	};
+
+	const chekPress = () => {
+		goRight.start();
+	};
+
 	return (
+		
 		<Container>
-			<Card 
-				{...panResponder.panHandlers}
-				style={{
-					transform: [
-						{ scale }, 
-						{ translateX: position },
-						{ rotateZ: rotation },
-					],
-				}}
-			>
-				<Ionicons name='pizza' color='#192a56' size={98} />
-			</Card>
+			<CardContainer>
+				<Card 
+					style={{
+						transform: [{ scale: secondScale }]
+					}}>
+					<Ionicons name='beer' color='#192a56' size={98} />
+				</Card>
+
+				<Card 
+					{...panResponder.panHandlers}
+					style={{
+						transform: [
+							{ scale }, 
+							{ translateX: position },
+							{ rotateZ: rotation },
+						],
+					}}
+				>
+					<Ionicons name='pizza' color='#192a56' size={98} />
+				</Card>
+			</CardContainer>
+
+			<BtnCotainer>
+				<Btn onPress={closePress}>
+					<Ionicons name='close-circle' color='white' size={58} />
+				</Btn>
+
+				<Btn onPress={chekPress}>
+					<Ionicons name='checkmark-circle' color='white' size={58} />
+				</Btn>
+			</BtnCotainer>
 		</Container>
 	);
 }
